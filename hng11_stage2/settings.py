@@ -77,6 +77,12 @@ WSGI_APPLICATION = 'hng11_stage2.wsgi.application'
 #user model
 AUTH_USER_MODEL = 'core.User'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
