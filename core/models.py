@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from shortuuidfield import ShortUUIDField
 # Create your models here.
 
 
 class User(AbstractBaseUser):
-    userId = models.CharField(max_length=20, primary_key=True, unique=True)
+    userId = ShortUUIDField(max_length=20, primary_key=True, unique=True, editable=False)
     firstName = models.CharField(max_length=25, blank=False, null=False)
     lastName = models.CharField(max_length=25, blank=False, null=False)
     email = models.EmailField(unique=True, blank=False, null=False)
@@ -25,5 +26,4 @@ class Organisation(models.Model):
 
     def __str__(self):
         return self.name
-    
     

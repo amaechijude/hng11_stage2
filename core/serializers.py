@@ -4,12 +4,12 @@ from .models import User, Organisation
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['firstName', 'lastName', 'email', 'password', 'phone']
         extra_kwargs = {'password':{'write_only': True}}
 
     def create(self, validated_data):
         user = User(
-            userId = validated_data['userId'],
+            # userId = validated_data['userId'],
             firstName = validated_data['firstName'],
             lastName = validated_data['lastName'],
             email = validated_data['email'],
