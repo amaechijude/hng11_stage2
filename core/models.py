@@ -1,31 +1,29 @@
 from django.db import models
-from shortuuidfield import ShortUUIDField
 from django.contrib.auth.models import AbstractBaseUser
-# # Create your models here.
+# Create your models here.
 
 
 class User(AbstractBaseUser):
-    userId = ShortUUIDField(max_length=20, primary_key=True, unique=True, editable=False)
+    userId = models.CharField(max_length=20, primary_key=True, unique=True)
     firstName = models.CharField(max_length=25, blank=False, null=False)
     lastName = models.CharField(max_length=25, blank=False, null=False)
     email = models.EmailField(unique=True, blank=False, null=False)
     password = models.CharField(max_length=25, blank=False, null=False)
     phone = models.CharField(max_length=15)
 
-
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['firstName','lastName', 'password', 'phone']
+    REQUIRED_FIELDS = ['firsName','lastName', 'password', 'phone']
 
     def __str__(self):
-        return self.email
+        return self.userId
 
 
 class Organisation(models.Model):
-    orgId = ShortUUIDField(max_length=20, primary_key=True, unique=True, editable=False)
+    orgId = models.CharField(max_length=20, primary_key=True, unique=True)
     name = models.CharField(max_length=75, blank=False, null=False)
-    description = models.TextField(blank=True)
-    members = models.ManyToManyField(User)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
-
+    
+    
