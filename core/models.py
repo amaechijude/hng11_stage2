@@ -1,7 +1,7 @@
 from django.db import models
 from shortuuidfield import ShortUUIDField
 from django.contrib.auth.models import AbstractBaseUser
-# Create your models here.
+# # Create your models here.
 
 
 class User(AbstractBaseUser):
@@ -11,13 +11,13 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True, blank=False, null=False)
     password = models.CharField(max_length=25, blank=False, null=False)
     phone = models.CharField(max_length=15)
-    #organisations = models.ManyToManyField(Organisation)
+
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['firsName','lastName', 'password', 'phone']
+    REQUIRED_FIELDS = ['firstName','lastName', 'password', 'phone']
 
     def __str__(self):
-        return self.userId
+        return self.email
 
 
 class Organisation(models.Model):
