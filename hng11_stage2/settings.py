@@ -43,7 +43,10 @@ INSTALLED_APPS = [
 
     'core',
     'gunicorn',
+
+    #rest framework
     'rest_framework',
+    'rest_framework_simplejwt',
 
 ]
 
@@ -99,6 +102,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    "USER_ID_FIELD": "userId",
 }
 
 
