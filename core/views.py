@@ -108,4 +108,9 @@ def login_user(request):
     }
     return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
+User = get_user_model()
 
+def get_user(request, userId):
+    userId = request.user.userId
+    user = User.object.get(userId=userId)
+    
