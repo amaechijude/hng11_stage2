@@ -1,5 +1,9 @@
+import json
+import logging
+
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, LoginSerializer
@@ -87,3 +91,17 @@ def login_user(request):
             }
         }, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#class login_user(APIView):
+#    def post(self, request):
+#        try:
+#           data = json.loads(request.body)
+#           login_user = authenticate(username=data.get("email"), password=data.get("password"))
+#           if login_user is not None:
+#               context = {"message": f"User {login_user.email} successfully logged in"}
+ 
+ #return Response(context, status.HTTP_202_ACCEPTED)
+  #          else:
+   #             return Response({"message": "Invalid Credentials"}, status.HTTP_401_UNAUTHORIZED)
+    #    except Exception as e:
+     #       logging.exception(e)
+      #      return Response({"message": "Error occurred"}, status.HTTP_400_BAD_REQUEST)
