@@ -7,6 +7,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.http.response import JsonResponse
 
+User = get_user_model()
+
+
+def get_token_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    context = {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 def index(request):
     context = {
@@ -15,20 +24,31 @@ def index(request):
     return JsonResponse(context, safe=False)
 
 
+
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
         new_user = UserSerializer(data=request.data)
         if new_user.is_valid():
             # save new user
-            new_user.save()
+            user = new_user.save()
 
             # create organisation
-            # org_name = f"{str(new_user.firstName)}'s Organisation"
-            # new_org = Organisation.objects.create(name=org_name,members=new_user)
-            # new_org.save()
-
-            return Response(new_user.data, status=status.HTTP_201_CREATED)
+            
+            #tokens
+            tokens = get_token_for_user(user)
+            user_data = {
+                'refresh': tokens['refresh'],
+                'access': tokens['access'],
+                'user': {
+                    'userId': user.userId,
+                    'email': user.email,
+                    'firstName': user.firstName,
+                    'lastName': user.lastName,
+                    'phone': user.phone,
+                }
+            }
+            return Response(user_data, status=status.HTTP_201_CREATED)
         
         return Response(new_user.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -48,13 +68,6 @@ def register(request):
 #             return Response({'token': token.key}, status=status.HTTP_200_OK)
         
 #         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
 
 # @api_view(['POST'])
 # def register(request):
