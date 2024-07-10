@@ -1,5 +1,9 @@
+import json
+import logging
+
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, LoginSerializer
@@ -42,12 +46,12 @@ def register(request):
             #tokens
             tokens = get_tokens_for_user(user)
             user_data = {
-                    "status": status.HTTP_201_CREATED,
+                    "status": "success",
                     "message": "Registration Successful",
                     
                     "data": {
                         #'refresh': tokens['refresh'],
-                        'access': tokens['access'],
+                        'accessToken': tokens['access'],
 
                         'user': {
                             'userId': user.userId,
@@ -55,19 +59,19 @@ def register(request):
                             'lastName': user.lastName,
                             'email': user.email,
                             'phone': user.phone,
-                            },
-
-                        "organisation": {
-                            "OrgId": user_org.orgId,
-                            "org name": user_org.name,
-                        }
+                            }
                         }
                     }
             return Response(user_data, status=status.HTTP_201_CREATED)
-
         
+        result = {
+            "status": "Bad Request",
+            "message": "Registration unsuccessful",
+            "statusCode": 400,
+            "errors": new_user.errors
+        }
         
-        return Response(new_user.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(result, status=status.HTTP_400_BAD_REQUEST)
     
 
 
@@ -77,13 +81,31 @@ def login_user(request):
     if serializer.is_valid():
         user = serializer.validated_data['user']
         tokens = get_tokens_for_user(user)
-        return Response({
-            # 'refresh': tokens['refresh'],
-            'access': tokens['access'],
-            'user': {
-                'email': user.email,
-                'firstName': user.firstName,
-                'lastName': user.lastName
+
+        output = {
+            "status": "success",
+            "message": "Login successful",
+            
+            "data": {
+                # 'refresh': tokens['refresh'],
+                'accessToken': tokens['access'],
+
+                'user': {
+                    'userId': user.userId,
+                    'firstName': user.firstName,
+                    'lastName': user.lastName,
+                    'email': user.email,
+                    'phone': user.phone,
+                    }
+                }
             }
-        }, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(output, status=status.HTTP_200_OK)
+    
+    result = {
+        "status": "Bad request",
+        "message": "Authentication Failed",
+        "statusCode": status.HTTP_401_UNAUTHORIZED
+    }
+    return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+
