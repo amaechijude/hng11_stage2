@@ -2,10 +2,11 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.http.response import JsonResponse
+from .models import Organisation
 
 def index(request):
     context = {
@@ -31,6 +32,12 @@ def register(request):
             user = new_user.save()
 
             # create organisation
+            name = f"{user.firstName}'s Organistion"
+            new_org = Organisation.objects.create(name=name)
+            new_org.members.add(user)
+            new_org.save()
+            
+            user_org = Organisation.objects.get(name=name)
             
             #tokens
             tokens = get_tokens_for_user(user)
@@ -48,7 +55,12 @@ def register(request):
                             'lastName': user.lastName,
                             'email': user.email,
                             'phone': user.phone,
-                            }
+                            },
+
+                        "organisation": {
+                            "OrgId": user_org.orgId,
+                            "org name": user_org.name,
+                        }
                         }
                     }
             return Response(user_data, status=status.HTTP_201_CREATED)
@@ -61,34 +73,17 @@ def register(request):
 
 @api_view(['POST'])
 def login_user(request):
-    if request.method == 'POST':
-        email = request.data.get('email')
-        password = request.data.get('email')
-
-        if len(str(email)) < 1 or len(str(password)) < 1:
-            output = {"error": "Provide email and password"}
-            return Response(output, status=status.HTTP_400_BAD_REQUEST)
-
-        user = authenticate(request,email=email, password=password)
-
-
-
-        if user is not None:
-            #token, _ = Token.objects.get_or_create(user=user)
-
-            user_data = {
-             #   'refresh': tokens['refresh'],
-              #  'access': tokens['access'],
-              "message": "Login Successful",
-                'user': {
-                    'userId': user.userId,
-                    'email': user.email,
-                    'firstName': user.firstName,
-                    'lastName': user.lastName,
-                    'phone': user.phone,
-                }
+    serializer = LoginSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        tokens = get_tokens_for_user(user)
+        return Response({
+            # 'refresh': tokens['refresh'],
+            'access': tokens['access'],
+            'user': {
+                'email': user.email,
+                'firstName': user.firstName,
+                'lastName': user.lastName
             }
-            return Response(user_data, status=status.HTTP_200_OK)
-
-        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
