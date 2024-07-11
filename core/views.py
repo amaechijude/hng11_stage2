@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, LoginSerializer, OrganisationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import generics, status, permissions
 
 from django.http.response import JsonResponse
 from .models import Organisation
@@ -143,7 +144,56 @@ def user_detail(request, id):
 def org_view(request):
     if request.user.is_authenticated:
         user = request.user
-        all_org = Organisation.objects.filter(members=user)
+        all_org = Organisation.objects.filter(members=user.userId)
         serializer = OrganisationSerializer(data=all_org, many=True)
+
         if serializer.is_valid():
             return Response(serializer.data,status=status.HTTP_200_OK)
+    output = {"error":"Unauthorised Access"}
+    return Response(output, status=status.HTTP_401_UNAUTHORIZED)
+
+class org_view(generics.ListAPIView):
+    serializer_class = OrganisationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        all_org = Organisation.objects.filter(members=user.userId)
+        return all_org
+
+
+class Org_details(generics.RetrieveAPIView):
+    queryset = Organisation.objects.all()
+    serializer_class = OrganisationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'orgId'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            org = self.get_object()
+            if org.members.filter(userId=request.user.userId).exists():
+                serializer = self.get_serializer(org)
+                
+                output = {
+                    'status': 'success',
+                    'message': 'Organisation retrieved successfully',
+                    'data': serializer.data,
+                    }
+                return Response(output, status=status.HTTP_200_OK)
+            
+            ouput = {
+                'status': 'Forbidden',
+                'message': 'You do not have permission to view this organisation',
+                'statusCode': 403
+                }
+            return Response(output, status=status.HTTP_403_FORBIDDEN)
+        
+        except Organisation.DoesNotExist:
+            output = {
+                'status': 'Not Found',
+                'message': 'Organisation not found',
+                'statusCode': 404
+                }
+            return Response(output, status=status.HTTP_404_NOT_FOUND)
+
+
