@@ -115,7 +115,7 @@ User = get_user_model()
 @api_view(['GET'])
 def user_detail(request, id):
     if request.user.is_authenticated:
-        user = User.object.get(userId=id)
+        user = User.objects.get(userId=id)
 
         if user == request.user or user.organisation.filter(members=request.user).exists():
             output = {
@@ -132,10 +132,10 @@ def user_detail(request, id):
                     }
             return Response(output, status=status.HTTP_200_OK)
         
-        result = {
+    result = {
                 "error" : "Unauthorised Access"
                 }
-        return Response(result, status=status.HTTP_401_UNAUTHORIZED)
+    return Response(result, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -143,6 +143,7 @@ def user_detail(request, id):
 def org_view(request):
     if request.user.is_authenticated:
         user = request.user
-        all_org = user.organisation.all()
+        all_org = Organisation.objects.filter(members=user)
         serializer = OrganisationSerializer(data=all_org, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            return Response(serializer.data,status=status.HTTP_200_OK)
