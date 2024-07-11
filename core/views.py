@@ -13,11 +13,6 @@ from rest_framework import generics, status, permissions
 from django.http.response import JsonResponse
 from .models import Organisation
 
-def index(request):
-    context = {
-        "hello": "hello"
-    }
-    return JsonResponse(context, safe=False)
 
 
 def get_tokens_for_user(user):
