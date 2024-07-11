@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, LoginSerializer, OrganisationSerializer
+from .serializers import UserSerializer, LoginSerializer, OrganisationSerializer, AddUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics, status, permissions
 
@@ -140,18 +140,6 @@ def user_detail(request, id):
 
 
 
-@api_view(['GET'])
-def org_view(request):
-    if request.user.is_authenticated:
-        user = request.user
-        all_org = Organisation.objects.filter(members=user.userId)
-        serializer = OrganisationSerializer(data=all_org, many=True)
-
-        if serializer.is_valid():
-            return Response(serializer.data,status=status.HTTP_200_OK)
-    output = {"error":"Unauthorised Access"}
-    return Response(output, status=status.HTTP_401_UNAUTHORIZED)
-
 class org_view(generics.ListAPIView):
     serializer_class = OrganisationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -181,12 +169,12 @@ class Org_details(generics.RetrieveAPIView):
                     }
                 return Response(output, status=status.HTTP_200_OK)
             
-            ouput = {
+            payload = {
                 'status': 'Forbidden',
                 'message': 'You do not have permission to view this organisation',
                 'statusCode': 403
                 }
-            return Response(output, status=status.HTTP_403_FORBIDDEN)
+            return Response(payload, status=status.HTTP_403_FORBIDDEN)
         
         except Organisation.DoesNotExist:
             output = {
@@ -196,4 +184,58 @@ class Org_details(generics.RetrieveAPIView):
                 }
             return Response(output, status=status.HTTP_404_NOT_FOUND)
 
+     
 
+@api_view(['POST'])
+def create_org(request):
+    if request.user.is_authenticated:
+        serializer = OrganisationSerializer(data=request.data)
+        if serializer.is_valid():
+            new_org = serializer.save()
+            payload = {
+                "status": "success",
+                "message": "Organisation Created Successfully",
+                "data": {
+                    "orgId": new_org.orgId,
+                    "name": new_org.name,
+                    "description": new_org.description,
+                }
+            }
+            return Response(payload, status=status.HTTP_201_CREATED)
+        payload = {
+            "status": "Bad Request",
+            "message": "Client error",
+            "status code": 400,
+            "error": serializer.errors
+            }
+        return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+    output = {
+        'status': 'Forbidden',
+        'message': 'You are not Authenticated',
+        'statusCode': 403
+        }
+    return Response(output, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['POST'])
+def add_users(request, orgId):
+    if request.user.is_authenticated:
+       serializer = AddUserSerializer(data=request.data, context={'request': request})
+       if serializer.is_valid():
+          new_user = serializer.validated_data['user']
+          org = Organisation.objects.get(orgId=orgId)
+          org.members.add(new_user)
+
+          payload = {
+              "status": 'success',
+              "message": "User added to Organisation Successfully"
+          }
+          return Response(payload, status=status.HTTP_200_OK)
+       return Response(serializer.errors)
+
+    output = {
+        'status': 'Forbidden',
+        'message': 'You are not Authenticated',
+        'statusCode': 403
+        }
+    return Response(output, status=status.HTTP_403_FORBIDDEN)

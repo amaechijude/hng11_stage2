@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import User, Organisation
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,5 +43,20 @@ class LoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError('Must include "email" and "password"')
 
+        data['user'] = user
+        return data
+
+Profile = get_user_model()
+
+class AddUserSerializer(serializers.Serializer):
+    userId = serializers.CharField()
+    
+    def validate(self, data):
+        userId = data.get('userId')
+        if Profile.objects.filter(userId=userId).exists():
+            user = Profile.objects.get(userId=userId)
+        else:
+            raise serializers.ValidationError("User doest not exist")
+        
         data['user'] = user
         return data
