@@ -9,7 +9,7 @@ urlpatterns = [
         path('api/users/<str:id>', views.user_detail, name='user_detail'),
         path('api/organisations', views.org_view.as_view(), name='org_view'),
         path('api/organisations/<str:orgId>', views.Org_details.as_view(), name='org_details'),
-        path('api/organisations', views.create_org, name='create_org'),
+        path('api/create/organisations', views.create_org, name='create_org'),
         path('api/organisations/<str:orgId>/users', views.add_users, name='add_users'),
 
         ]

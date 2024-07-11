@@ -30,7 +30,7 @@ class Organisation(models.Model):
     orgId = ShortUUIDField(max_length=20, primary_key=True, unique=True, editable=False)
     name = models.CharField(max_length=75, blank=False, null=False)
     description = models.TextField(blank=True)
-    members = models.ManyToManyField(User)
+    members = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.name

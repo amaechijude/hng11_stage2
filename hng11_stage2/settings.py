@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 from datetime import timedelta
 import os
@@ -28,7 +29,7 @@ SECRET_KEY = 'django-insecure-hisjt2wqaz35rxvd9^2%_k)&569vxofo_-2hp)2a=x#5cs&_)0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -96,7 +97,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=25),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=95),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -111,10 +112,22 @@ SIMPLE_JWT = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': config('engine'),
+        'NAME': config('name'),
+        'USER': config('user'),
+        'PASSWORD': config('password'),
+        'HOST': config('host'),
+        'PORT': config('port')
     }
 }
+
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
 
 
 # Password validation

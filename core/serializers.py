@@ -26,7 +26,10 @@ class OrganisationSerializer(serializers.ModelSerializer):
         model = Organisation
         fields = '__all__'
 
-
+class OrgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organisation
+        f = '__all__'
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
