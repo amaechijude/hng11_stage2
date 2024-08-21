@@ -110,24 +110,24 @@ SIMPLE_JWT = {
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': config('engine'),
+#         'NAME': config('name'),
+#         'USER': config('user'),
+#         'PASSWORD': config('password'),
+#         'HOST': config('host'),
+#         'PORT': config('port')
+#     }
+# }
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': config('engine'),
-        'NAME': config('name'),
-        'USER': config('user'),
-        'PASSWORD': config('password'),
-        'HOST': config('host'),
-        'PORT': config('port')
-    }
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
 }
-
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
 
 
 # Password validation
